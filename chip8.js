@@ -38,6 +38,7 @@ MMU = {
 };
 
 CPU = {
+    fps: 120,
     pc: 0x200,
     sp: 0x0,
     stack: new Uint16Array(16),
@@ -60,8 +61,6 @@ CPU = {
         }
         GPU.render();
         CPU.rflag = false;
-
-        CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
     },
     interval: null,
     interp_op: function(opcode) {
@@ -220,7 +219,7 @@ CPU = {
                         var x = (opcode&0x0F00)>>8;
                         for (var i = 0; i < x; i++) MMU.wb(CPU.I + i, CPU.V[i]);
                         break;
-                    case 0x0065:
+                    case 0x0064:
                         var x = (opcode&0x0F00)>>8;
                         for (var i = 0; i < x; i++) CPU.V[i] = MMU.rb(CPU.I + i);
                         break;
@@ -237,11 +236,11 @@ CPU = {
     },
     run: function() {
         if (CPU.interval) {
-            clearTimeout(CPU.interval);
+            clearInterval(CPU.interval);
             CPU.interval = null;
             document.getElementById('run').innerHTML = 'Run';
         } else {
-            CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
+            CPU.interval = setInterval(CPU.frame, 1000/CPU.fps);
             document.getElementById('run').innerHTML = 'Pause';
         }
     }
@@ -254,34 +253,36 @@ GPU = {
         if (c && c.getContext) {
             GPU._canvas = c.getContext('2d');
             if (GPU._canvas) {
-                if (GPU._canvas.createImageData) GPU._scrn = GPU._canvas.createImageData(128, 64);
+                if (GPU._canvas.createImageData) GPU._scrn = GPU._canvas.createImageData(64, 32);
 
-                else if (GPU._canvas.getImageData) GPU._scrn = GPU._canvas.getImageData(0, 0, 128, 64);
+                else if (GPU._canvas.getImageData) GPU._scrn = GPU._canvas.getImageData(0, 0, 64, 32);
 
                 else GPU._scrn = {
-                        'width': 128,
+                        'width': 32,
                         'height': 64,
-                        'data': new Array(128 * 64 * 4)
+                        'data': new Array(32 * 64 * 4)
                     };
-
                 // Initialise canvas to white
-                for (var i = 0; i < 128 * 64 * 4; i++)
+                for (var i = 0; i < 32 * 64 * 4; i++)
                     GPU._scrn.data[i] = 255;
-
-                GPU._canvas.putImageData(GPU._scrn, 0, 0);
+                GPU.render();
             }
         }
     },
     screen: document.getElementById("screen").getContext("2d"),
     render: function () {
-        GPU._canvas.putImageData(GPU._scrn, 0, 0);
+        var newCanvas = document.createElement("canvas");
+        newCanvas.width = 64;
+        newCanvas.height = 32;
+        newCanvas.getContext('2d').putImageData(GPU._scrn, 0, 0);
+        GPU._canvas.drawImage(newCanvas, 0, 0, 64, 32, 0, 0, 128, 64);
     },
     loadsprite: function (sprite, pos) {
-        var x = pos[0] + 8;
+        var x = pos[0] + 7;
         var y = pos[1];
         for (var i = 0; i < sprite.length; i++) {
             for (var j = 0; j < 8; j++) {
-                var p = (x + 128 * y) * 4;
+                var p = (x + 64 * y) * 4;
                 if (GPU._scrn.data[p] == 0) CPU.V[0xF] = 1;
                 else CPU.V[0xF] = 0;
                 GPU._scrn.data[p] ^= 255 * ((sprite[i] >> j) & 1);
@@ -289,7 +290,7 @@ GPU = {
                 GPU._scrn.data[p + 2] ^= 255 * ((sprite[i] >> j) & 1);
                 x--;
             }
-            x = pos[0] + 8;
+            x = pos[0] + 7;
             y++;
         }
     }
@@ -304,7 +305,7 @@ KEY = {
         87: 0x5,
         69: 0x6,
         82: 0xD,
-        65: 0x7,
+        64: 0x7,
         83: 0x8,
         68: 0x9,
         70: 0xE,
@@ -315,10 +316,12 @@ KEY = {
     },
     keys: new Uint8Array(0xF),
     keydown: function(evt) {
+        console.log("YES I'm HERE" + evt.keyCode.toString());
         if (KEY.mapping[evt.keyCode])
             KEY.keys[KEY.mapping[evt.keyCode]] = 1;
     },
     keyup: function(evt) {
+        console.log("YES I'm HERE" + evt.keyCode.toString());
         if (KEY.mapping[evt.keyCode])
             KEY.keys[KEY.mapping[evt.keyCode]] = 0;
     }
@@ -346,3 +349,12 @@ document.getElementById("reset").onclick = reset;
 document.getElementById("file").addEventListener("change", handleFileSelect, false);
 document.getElementById("screen").onkeydown = KEY.keydown;
 document.getElementById("screen").onkeyup = KEY.keyup;
+document.getElementById("fps").onclick = function() {
+    var text = document.getElementById("fpstext").value;
+    CPU.fps = parseInt(text);
+    if (CPU.interval) {
+        clearTimeout(CPU.interval);
+        CPU.interval = setTimeout(CPU.frame, 1000 / CPU.fps);
+    }
+    console.log(CPU.fps);
+};
