@@ -244,7 +244,7 @@ CPU = {
             document.getElementById('run').innerHTML = 'Run';
         } else {
             CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
-            CPU.interval2 = setInterval(CPU.timers, 0x016666666666666666);
+            CPU.interval2 = setInterval(CPU.timers, 0.016666666666666666);
             document.getElementById('run').innerHTML = 'Pause';
         }
     }
