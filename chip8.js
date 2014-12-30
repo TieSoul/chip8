@@ -58,6 +58,12 @@ CPU = {
             CPU.interp_op(opcode);
             opcode = MMU.rw(CPU.pc);
         } while (!CPU.rflag);
+        // THIS ISN'T WORKING
+        // WHY THE FUCK ISN'T THIS WORKING
+        // IT'S A SIMPLE FLAG WHY ISN'T IT WORKING
+        // THE RENDER FLAG IS NOT WORKING
+        // HOW CAN THIS THING NOT WORK
+        // HELP
         GPU.render();
         CPU.rflag = false;
         if (CPU.delayt) CPU.delayt--;
