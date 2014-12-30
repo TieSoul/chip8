@@ -32,7 +32,7 @@ MMU = {
     },
     load: function(file) {
         if (file.length > 0x0DFF) throw Error("ROM image is too long!");
-        for (var i = 0; i < 0x0E00; i++) MMU.wb(i + 0x200, file[i]);
+        for (var i = 0; i < file.length; i++) MMU.wb(i + 0x200, file[i]);
         console.log(MMU.memory);
     }
 };
