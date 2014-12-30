@@ -54,16 +54,10 @@ CPU = {
     },
     frame: function() {
         var opcode = MMU.rw(CPU.pc);
-        while (!CPU.rflag) {
-            CPU.interp_op(opcode);
-            opcode = MMU.rw(CPU.pc);
-        }
+        CPU.interp_op(opcode);
+        opcode = MMU.rw(CPU.pc);
         GPU.render();
         CPU.rflag = false;
-        CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
-    },
-    interval: null,
-    interp_op: function(opcode) {
         if (CPU.delayt) CPU.delayt--;
         if (CPU.soundt)  {
             if (--CPU.soundt == 0) {
@@ -71,6 +65,11 @@ CPU = {
                 document.getElementById("beep").play();
             }
         }
+        CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
+    },
+    interval: null,
+    interp_op: function(opcode) {
+        
         switch(opcode & 0xF000) {
             case 0x0000:
                 if (opcode == 0x00E0) {
