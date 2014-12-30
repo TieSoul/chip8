@@ -62,9 +62,15 @@ CPU = {
         CPU.rflag = false;
         CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
     },
-    interval2: null,
     interval: null,
     interp_op: function(opcode) {
+        if (CPU.delayt) CPU.delayt--;
+        if (CPU.soundt)  {
+            if (--CPU.soundt == 0) {
+                document.getElementById("beep").currentTime = 0;
+                document.getElementById("beep").play();
+            }
+        }
         switch(opcode & 0xF000) {
             case 0x0000:
                 if (opcode == 0x00E0) {
@@ -227,24 +233,13 @@ CPU = {
         }
         CPU.pc += 2;
     },
-    timers: function() {
-        if (CPU.delayt) CPU.delayt--;
-        if (CPU.soundt)  {
-            if (--CPU.soundt == 0) {
-                document.getElementById("beep").currentTime = 0;
-                document.getElementById("beep").play();
-            }
-        }
-    },
     run: function() {
         if (CPU.interval) {
             clearTimeout(CPU.interval);
-            clearInterval(CPU.interval2);
             CPU.interval = null;
             document.getElementById('run').innerHTML = 'Run';
         } else {
             CPU.interval = setTimeout(CPU.frame, 0.016666666666666666);
-            CPU.interval2 = setInterval(CPU.timers, 0.016666666666666666);
             document.getElementById('run').innerHTML = 'Pause';
         }
     }
