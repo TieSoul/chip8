@@ -54,10 +54,10 @@ CPU = {
     },
     frame: function() {
         var opcode = MMU.rw(CPU.pc);
-        while (opcode != 0x00E0 && (opcode&0xF000) != 0xD000) {
+        do {
             CPU.interp_op(opcode);
             opcode = MMU.rw(CPU.pc);
-        }
+        } while (opcode != 0x00E0 && (opcode&0xF000) != 0xD000)
         GPU.render();
         if (CPU.delayt) CPU.delayt--;
         if (CPU.soundt)  {
