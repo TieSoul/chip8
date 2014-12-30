@@ -5,10 +5,12 @@
     <title>Chip-8</title>
 </head>
 <body>
-    <canvas id="screen" height="64" width="128"></canvas><br />
+    <canvas id="screen" height="64" width="128" tabindex="0"></canvas><br />
     <button id="run">Run</button> <button id="reset">Reset</button> <br />
     <input type="file" id="file" name="files[]" multiple />
-    <audio id="beep"><source src="beep.mp3" /></audio>
+    <audio id="beep"><source src="beep.mp3" /></audio> <br />
+    FPS: <input type="text" id="fpstext" value="120" />
+    <button id="fps">Change FPS</button>
     <script type="text/javascript" src="chip8.js"></script>
 
 </body>
